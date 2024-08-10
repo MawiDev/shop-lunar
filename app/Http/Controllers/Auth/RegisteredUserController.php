@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Lunar\Models\Address;
 use Lunar\Models\Customer;
 
 class RegisteredUserController extends Controller
@@ -44,6 +45,8 @@ class RegisteredUserController extends Controller
             "password" => Hash::make($request->password),
         ]);
 
+        event(new Registered($user));
+
         $customer = Customer::create([
             "first_name" => $request->name,
             "last_name" => "",
@@ -52,9 +55,19 @@ class RegisteredUserController extends Controller
             ],
         ]);
 
-        $customer->users()->attach($user);
+        $address = Address::create([
+            "first_name" => "",
+            "last_name" => "",
+            "customer_id" => $customer->id,
+            "line_one" => "",
+            "city" => "",
+            "delivery_instructions" => "",
+            "contact_email" => $user->email,
+            "contact_phone" => "",
+        ]);
 
-        event(new Registered($user));
+        $customer->users()->attach($user);
+        $address->save();
 
         Auth::login($user);
 
