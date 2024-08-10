@@ -1,9 +1,57 @@
+import { useState } from "react";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 
-const Edit = ({ auth }) => {
+const Edit = ({ auth, countries, states, address }) => {
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [formData, setFormData] = useState({
+    id: address.id,
+    customer_id: address.customer_id,
+    title: address.title || "",
+    first_name: auth.user.name || "",
+    last_name: address.last_name || "",
+    contact_email: auth.user.email || "",
+    contact_phone: address.contact_phone || "",
+    line_one: address.line_one || "",
+    line_two: address.line_two || "",
+    line_three: address.line_three || "",
+    city: address.city || "",
+    postcode: address.postcode || "",
+    country: address.country || "",
+    state: address.state || "",
+    delivery_instructions: address.delivery_instructions || "",
+  });
+
+  // Gestisce il cambiamento del paese e aggiorna gli stati filtrati
+  const handleCountryChange = (event) => {
+    const countryId = event.target.value;
+    setSelectedCountry(countryId);
+    setFormData({ ...formData, country: countryId });
+    const statesForCountry = states.filter(
+      (state) => state.country_id === parseInt(countryId),
+    );
+    setFilteredStates(statesForCountry);
+  };
+
+  // Gestisce il cambiamento di tutti i campi del modulo
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  // Gestisce l'invio del modulo
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(formData);
+    router.patch(route("address.update"), formData);
+  };
+
   return (
     <AuthenticatedLayout
       user={auth.user}
@@ -18,7 +66,10 @@ const Edit = ({ auth }) => {
       <div className="py-12">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
           <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-            <form className="flex flex-col items-start gap-6">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col items-start gap-6"
+            >
               <div>
                 <InputLabel
                   htmlFor="personal_data"
@@ -27,8 +78,11 @@ const Edit = ({ auth }) => {
                 <div className="flex justify-start gap-6 mt-4">
                   <select
                     name="title"
-                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm "
+                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    onChange={handleInputChange}
+                    value={formData.title}
                   >
+                    <option value="">Select Title</option>
                     <option value="Mr.">Mr.</option>
                     <option value="Mrs.">Mrs.</option>
                     <option value="Miss">Miss</option>
@@ -37,12 +91,15 @@ const Edit = ({ auth }) => {
                     name="first_name"
                     type="text"
                     placeholder="First name"
-                    defaultValue={auth.user.name}
+                    value={formData.first_name}
+                    onChange={handleInputChange}
                   />
                   <TextInput
                     name="last_name"
                     type="text"
                     placeholder="Last name"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
                   />
                 </div>
                 <div className="flex justify-start gap-6 mt-4">
@@ -50,12 +107,15 @@ const Edit = ({ auth }) => {
                     name="contact_email"
                     type="email"
                     placeholder="Email"
-                    defaultValue={auth.user.email}
+                    value={formData.contact_email}
+                    onChange={handleInputChange}
                   />
                   <TextInput
                     name="contact_phone"
                     type="text"
                     placeholder="Phone number"
+                    value={formData.contact_phone}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -70,32 +130,74 @@ const Edit = ({ auth }) => {
                     name="line_one"
                     type="text"
                     placeholder="Address 1"
+                    value={formData.line_one}
+                    onChange={handleInputChange}
                   />
                   <TextInput
                     name="line_two"
                     type="text"
                     placeholder="Address 2"
+                    value={formData.line_two}
+                    onChange={handleInputChange}
                   />
                   <TextInput
                     name="line_three"
                     type="text"
                     placeholder="Address 3"
+                    value={formData.line_three}
+                    onChange={handleInputChange}
                   />
                 </div>
                 <div className="flex justify-start gap-6 mt-4">
-                  <TextInput name="city" type="text" placeholder="City" />
+                  <TextInput
+                    name="city"
+                    type="text"
+                    placeholder="City"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                  />
                   <TextInput
                     name="postcode"
-                    type="number"
-                    placeholder="postcode"
+                    type="text"
+                    placeholder="Postcode"
+                    value={formData.postcode}
+                    onChange={handleInputChange}
                   />
+                  <select
+                    name="country"
+                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-60"
+                    onChange={handleCountryChange}
+                    value={formData.country}
+                  >
+                    <option value="">Select Country</option>
+                    {countries.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="state"
+                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select State</option>
+                    {filteredStates.map((state) => (
+                      <option key={state.id} value={state.name}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
                 <div className="flex justify-start gap-6 mt-4">
                   <textarea
-                    name="delivery_istructions"
-                    type="text"
-                    placeholder="Delivery istructions"
-                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm "
+                    name="delivery_instructions"
+                    placeholder="Delivery instructions"
+                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    value={formData.delivery_instructions}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>

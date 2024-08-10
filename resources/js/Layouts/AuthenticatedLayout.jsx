@@ -144,6 +144,9 @@ export default function Authenticated({ user, header, children }) {
               <ResponsiveNavLink href={route("profile.edit")}>
                 Profile
               </ResponsiveNavLink>
+              <ResponsiveNavLink href={route("address.edit")}>
+                Address
+              </ResponsiveNavLink>
               <ResponsiveNavLink
                 method="post"
                 href={route("logout")}

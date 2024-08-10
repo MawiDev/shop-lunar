@@ -35,6 +35,9 @@ Route::middleware("auth")->group(function () {
     Route::get("/address", [AddressController::class, "edit"])->name(
         "address.edit"
     );
+    Route::patch("/address", [AddressController::class, "update"])->name(
+        "address.update"
+    );
 });
 
 require __DIR__ . "/auth.php";
