@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CollectionsController;
+use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,8 +11,12 @@ Route::get("/", function () {
     return Inertia::render("Welcome");
 });
 
-Route::get("/collections/{slug}", [CollectionsController::class, "slug"])->name(
+Route::get("/collection/{slug}", [CollectionsController::class, "slug"])->name(
     "collections.slug"
+);
+
+Route::get("/product/{slug}", [ProductsController::class, "slug"])->name(
+    "products.slug"
 );
 
 Route::get("/dashboard", function () {

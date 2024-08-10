@@ -25,7 +25,7 @@ export default function Guest({ children, collectionGroups }) {
                       {filteredCollections.map((collection) => (
                         <li key={collection.id}>
                           <Link
-                            href={`/collections/${collection.slug}`} // Usa lo slug per il link
+                            href={`/collection/${collection.slug}`} // Usa lo slug per il link
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           >
                             {collection.name}{" "}
