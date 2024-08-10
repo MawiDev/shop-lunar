@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Lunar\Models\CollectionGroup;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -12,7 +13,7 @@ class HandleInertiaRequests extends Middleware
      *
      * @var string
      */
-    protected $rootView = 'app';
+    protected $rootView = "app";
 
     /**
      * Determine the current asset version.
@@ -29,11 +30,49 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        // Fetch collection groups and map them
+        $collectionGroups = CollectionGroup::with(["collections.urls"])
+            ->get()
+            ->map(function ($group) {
+                return [
+                    "id" => $group->id,
+                    "name" => $group->name,
+                    "handle" => $group->handle,
+                    "collections" => $group->collections->map(function (
+                        $collection
+                    ) {
+                        // Access the value of name from the nested structure
+                        $attributeData = $collection->attribute_data->get(
+                            "name"
+                        );
+
+                        // If 'attribute_data' contains a 'TranslatedText' object
+                        if (
+                            $attributeData instanceof
+                            \Lunar\FieldTypes\TranslatedText
+                        ) {
+                            $name = $attributeData->getValue()["en"] ?? "N/A";
+                        } else {
+                            $name = "N/A";
+                        }
+
+                        return [
+                            "id" => $collection->id,
+                            "name" => $name,
+                            "slug" =>
+                                $collection->urls->firstWhere("default", true)
+                                    ->slug ?? "",
+                        ];
+                    }),
+                ];
+            });
+
         return [
             ...parent::share($request),
-            'auth' => [
-                'user' => $request->user(),
+            "auth" => [
+                "user" => $request->user(),
             ],
+            "collectionGroups" => $collectionGroups,
         ];
     }
 }

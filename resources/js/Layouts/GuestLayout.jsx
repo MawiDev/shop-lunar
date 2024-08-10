@@ -1,18 +1,50 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Link } from '@inertiajs/react';
+import ApplicationLogo from "@/Components/ApplicationLogo";
+import { Link } from "@inertiajs/react";
 
-export default function Guest({ children }) {
-    return (
-        <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <Link href="/">
-                    <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
-                </Link>
-            </div>
+export default function Guest({ children, collectionGroups }) {
+  return (
+    <>
+      <nav className="flex justify-between gap-6 items-center px-6 border-b-2">
+        <h1 className="text-2xl">Macraman</h1>
+        <div className="flex">
+          {collectionGroups.map((collecGroup) => {
+            // Filtra le collezioni per il gruppo corrente
+            const filteredCollections = collecGroup.collections;
 
-            <div className="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {children}
-            </div>
+            return (
+              <div key={collecGroup.id} className="group relative">
+                <button
+                  className={`flex justify-center w-full px-12 py-4 text-sm font-medium text-gray-700 hover:underline ${filteredCollections.length > 0 ? "cursor-default" : null}`}
+                >
+                  {collecGroup.name}
+                </button>
+
+                {filteredCollections.length > 0 && (
+                  <div className="hidden group-hover:block absolute bg-white z-10 w-full ring-1 ring-black ring-opacity-5">
+                    <ul className="py-1">
+                      {filteredCollections.map((collection) => (
+                        <li key={collection.id}>
+                          <Link
+                            href={`/collections/${collection.slug}`} // Usa lo slug per il link
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            {collection.name}{" "}
+                            {/* Mostra il nome della collezione */}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-    );
+        <div>
+          <p>login</p>
+        </div>
+      </nav>
+      <main>{children}</main>
+    </>
+  );
 }
